@@ -441,49 +441,58 @@ document.getElementById("back").addEventListener("click", function () { show("ho
 function fromHash() { return (location.hash || "").replace("#", "") || "home"; }
 window.addEventListener("popstate", function () { show(fromHash(), false); });
 window.addEventListener("hashchange", function () { show(fromHash(), false); });
+// ============================================================
+// 【内容设置区】要改公告、返图须知、返图墙，都在这一块里改
+// 只改引号 "" 里面的文字；每一条之间的逗号、引号、大括号不要删掉
+// ============================================================
 
+// 1) 返图表单网址
+var FORM_URL = "https://ejpob2bu4v6q.jp.larksuite.com/share/base/form/shrjpHTrJdIgjYDelT5E3y7CrBb";
+
+// 2) 公告栏：每条公告一段 { ... }，多条之间用逗号隔开；pinned 写 true 表示置顶
+//    还没有公告就保持 [ ] 空着。例子：
+//    { title: "公告标题", date: "2026-10-28", body: "公告内容", pinned: true },
+var NOTICES = [
+];
+
+// 3) 返图收集页的说明文字
+var COLLECT_INTRO = "感谢参与一烨知秋周年大屏应援！请上传你拍摄的大屏返图，管理组审核后会放到「返图墙」。";
+var COLLECT_RULES = [
+  "请上传清晰的大屏现场照片",
+  "点击上方按钮，在打开的表单里选择商场、填写昵称并上传照片",
+  "请只上传自己拍摄的照片，避免出现他人的清晰正脸或个人信息",
+  "审核通过后，照片会出现在「返图墙」，也可能被选为该点位的大屏照片"
+];
+
+// 4) 返图墙：每张照片一段 { ... }。file 是照片文件名（要先上传到仓库），
+//    screen 要和大屏资料里的商场名称一样；cover 写 true 会成为「大屏汇总」里该点位的照片。例子：
+//    { file: "001.jpg", nickname: "昵称", screen: "诸暨万达广场", caption: "", cover: false },
+var WALL = [
+];
 // ============================================================
-// 【可修改设置】返图表单网址：把问卷/表单的链接贴在两个引号中间
-var FORM_URL = "https://zcn041fzpd7m.feishu.cn/share/base/form/shrcnTmq5uvIbHDgwn9Ya95CeAe";
-// ============================================================
+
 var covers = {};
 function photoOf(s) { return s.photo || covers[s.mall] || ""; }
-function fdate(t) { return t ? esc(t) : ""; }
 function setHTML(id, h) { document.getElementById(id).innerHTML = h; }
-function getJSON(name) {
-  return fetch(name + "?v=" + Date.now()).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
-}
-var wallItems = [];
-function wallData() {
-  return getJSON("wall.json").then(function (d) { wallItems = (d && d.items) || []; return wallItems; }).catch(function () { wallItems = []; return wallItems; });
-}
 function loadCovers() {
-  wallData().then(function (items) {
-    covers = {};
-    items.forEach(function (it) { if (it.cover && it.screen && it.file) covers[it.screen] = it.file; });
-    if (state.tab === "summary") selectScreen(state.sel);
-  });
+  covers = {};
+  WALL.forEach(function (it) { if (it.cover && it.screen && it.file) covers[it.screen] = it.file; });
 }
 function safeLink(text) {
   return esc(text).replace(/(https?:\/\/[^\s<]+)/g, function (u) { return '<a href="' + u + '" target="_blank" rel="noopener">' + u + "</a>"; });
 }
 function loadNotice() {
-  setHTML("view-notice", '<p class="count">载入中…</p>');
-  getJSON("announcements.json").then(function (d) {
-    var list = (d && d.items || []).slice().sort(function (a, b) { return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0); });
-    if (!list.length) { setHTML("view-notice", '<div class="empty"><strong>公告栏还没有内容</strong><br>有新公告时会显示在这里。</div>'); return; }
-    setHTML("view-notice", '<div class="notes">' + list.map(function (a) {
-      return '<article class="note"><h3>' + (a.pinned ? '<span class="pin">置顶</span>' : "") + esc(a.title) + "</h3><time>" + fdate(a.date) + "</time>" + (a.body ? "<p>" + safeLink(a.body) + "</p>" : "") + "</article>";
-    }).join("") + "</div>");
-  }).catch(function () { setHTML("view-notice", '<div class="empty">公告载入失败，请稍后再试。</div>'); });
+  var list = NOTICES.slice().sort(function (a, b) { return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0); });
+  if (!list.length) { setHTML("view-notice", '<div class="empty"><strong>公告栏还没有内容</strong><br>有新公告时会显示在这里。</div>'); return; }
+  setHTML("view-notice", '<div class="notes">' + list.map(function (a) {
+    return '<article class="note"><h3>' + (a.pinned ? '<span class="pin">置顶</span>' : "") + esc(a.title) + "</h3><time>" + esc(a.date || "") + "</time>" + (a.body ? "<p>" + safeLink(a.body) + "</p>" : "") + "</article>";
+  }).join("") + "</div>");
 }
 function renderCollect() {
   setHTML("view-collect",
     '<a class="go" id="go" href="' + (FORM_URL ? esc(FORM_URL) : "#") + '" target="_blank" rel="noopener"' + (FORM_URL ? "" : ' aria-disabled="true"') + ">📷 " + (FORM_URL ? "前往提交返图" : "返图通道尚未开放") + "</a>" +
-    '<section class="guide"><h2>返图说明</h2><p>感谢参与一烨知秋周年大屏应援！请上传你拍摄的大屏返图，管理组审核后会放到「返图墙」。</p>' +
-    "<h3>上传须知</h3><ul><li>请上传清晰的大屏现场照片</li><li>点击上方按钮，在打开的表单里选择商场、填写昵称并上传照片</li><li>请只上传自己拍摄的照片，避免出现他人的清晰正脸或个人信息</li><li>审核通过后，照片会出现在「返图墙」，也可能被选为该点位的大屏照片</li></ul>" +
-    '<p class="stat" id="stat" style="margin-top:12px">📊 目前返图墙已有 <b>…</b> 张</p></section>');
-  wallData().then(function () { var s = document.getElementById("stat"); if (s) s.innerHTML = "📊 目前返图墙已有 <b>" + wallItems.length + "</b> 张返图"; });
+    '<section class="guide"><h2>返图说明</h2><p>' + esc(COLLECT_INTRO) + "</p><h3>上传须知</h3><ul>" + COLLECT_RULES.map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + "</ul>" +
+    '<p class="stat" style="margin-top:12px">📊 目前返图墙已有 <b>' + WALL.length + "</b> 张返图</p></section>");
 }
 var wallOff = 0, WALL_PAGE = 30;
 function figure(it) {
@@ -491,17 +500,14 @@ function figure(it) {
   return '<figure data-src="' + esc(it.file) + '" data-cap="' + esc(cap) + '" tabindex="0" role="button"><img src="' + esc(it.file) + '" alt="返图" loading="lazy"><figcaption><b>' + esc(it.screen || "") + "</b>" + esc(it.nickname || "匿名") + "</figcaption></figure>";
 }
 function showMore() {
-  var part = wallItems.slice(wallOff, wallOff + WALL_PAGE);
+  var part = WALL.slice(wallOff, wallOff + WALL_PAGE);
   document.getElementById("wall-grid").insertAdjacentHTML("beforeend", part.map(figure).join(""));
   wallOff += part.length;
-  document.getElementById("wall-more").innerHTML = wallOff < wallItems.length ? '<button class="more" type="button" id="more-btn">加载更多</button>' : "";
+  document.getElementById("wall-more").innerHTML = wallOff < WALL.length ? '<button class="more" type="button" id="more-btn">加载更多</button>' : "";
 }
 function loadWall() {
-  setHTML("view-wall", '<p class="count">载入中…</p>');
-  wallData().then(function (items) {
-    if (!items.length) { setHTML("view-wall", '<div class="empty"><strong>返图墙还没有照片</strong><br>审核通过的返图会展示在这里。</div>'); return; }
-    wallOff = 0; setHTML("view-wall", '<div class="wall" id="wall-grid"></div><div id="wall-more"></div>'); showMore();
-  });
+  if (!WALL.length) { setHTML("view-wall", '<div class="empty"><strong>返图墙还没有照片</strong><br>审核通过的返图会展示在这里。</div>'); return; }
+  wallOff = 0; setHTML("view-wall", '<div class="wall" id="wall-grid"></div><div id="wall-more"></div>'); showMore();
 }
 function openBox(fig) {
   var b = document.createElement("div"); b.className = "lightbox"; b.setAttribute("role", "dialog"); b.setAttribute("aria-label", "放大查看");
