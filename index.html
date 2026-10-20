@@ -447,12 +447,24 @@ window.addEventListener("hashchange", function () { show(fromHash(), false); });
 // ============================================================
 
 // 1) 返图表单网址
-var FORM_URL = "https://ejpob2bu4v6q.jp.larksuite.com/share/base/form/shrjpHTrJdIgjYDelT5E3y7CrBb";
+var FORM_URL = "https://zcn041fzpd7m.feishu.cn/share/base/form/shrcnTmq5uvIbHDgwn9Ya95CeAe";
 
 // 2) 公告栏：每条公告一段 { ... }，多条之间用逗号隔开；pinned 写 true 表示置顶
 //    还没有公告就保持 [ ] 空着。例子：
 //    { title: "公告标题", date: "2026-10-28", body: "公告内容", pinned: true },
 var NOTICES = [
+  {
+    title: "欢迎来到小月牙限定基地",
+    date: "2026-10-21",
+    body: "本基地开放时间为10.29-10.31，本基地主要目的是为了让大家能迅速定位到所在地大屏信息和上屏时间而设立。",
+    pinned: true
+  },
+  {
+    title: "打卡大屏注意事项",
+    date: "2026-10-21",
+    body: "① 遵守商场/户外大屏管理规定，不聚集，不堵通道，不影响路人通行。\n② 注意脚下，看管随身物品；夜晚打卡留意人身安全，结伴出行更佳。\n③ 禁止攀爬，触摸大屏设备，不要在墙面，地面粘贴物料。\n④ 公共场合文明应援，不大声喧哗，避免引起围观。\n\n如遇商场没有按时上屏，请拍摄大屏完整一轮的视频发送给Erase.W并告知哪个商场，同时可以直接去询问商场工作人员，会得到更快更高效的回复哦～",
+    pinned: false
+  }
 ];
 
 // 3) 返图收集页的说明文字
