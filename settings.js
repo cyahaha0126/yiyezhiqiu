@@ -40,14 +40,38 @@ var COLLECT_RULES = [
   "审核通过后，照片会出现在「返图墙」，也可能被选为该点位的大屏照片"
 ];
 
-// 4) 返图墙：一张照片写一行，格式是
-//      "照片路径|商场名称|昵称|想说的话(可不写)|封面(想设为该点位大屏照片就写 封面)"
-//    不用自己写，用「返图整理工具.html」选好照片，会自动生成这些行，复制贴到下面中括号里即可。
-//    新的放在最上面，网页上就会排在最前面。例子：
-//    "wall/1022-01.jpg|诸暨万达广场|小烨",
-//    "wall/1022-02.jpg|槐房万达广场|小月牙|好大的屏|封面",
+// 4) 返图墙
+//    ▼ 格式范例（一行一张）：
+//      "照片路径|商场名称|昵称|想说的话(可不写)|封面(想设为该点位的大屏照片就写 封面)"
+//      例如："wall/hangzhou.jpg|未来科技城万达广场|小月牙|好大的屏|封面",
+//    ▼ 下面已经为所有商场预设好位置：把照片按预设文件名（如 wall/hangzhou.jpg）上传到仓库的 wall 文件夹，就会自动显示；
+//      还没上传照片的位置不会显示，不用删。
+//      同一个商场想放第 2 张：复制该行，把文件名改成 wall/hangzhou-2.jpg 即可。
+//      想加昵称：在最后一个竖线后面写，例如 "wall/hangzhou.jpg|未来科技城万达广场|小月牙|",
 var WALL = [
-    "wall/0000-01.jpg|未来科技城万达广场|2026-10-18-try",
+  "wall/hangzhou.jpg|未来科技城万达广场|",   // 杭州
+  "wall/shaoxing.jpg|诸暨万达广场|",   // 绍兴
+  "wall/shenyang.jpg|龙之梦生活奥莱|",   // 沈阳
+  "wall/dalian.jpg|奥电未来城|",   // 大连
+  "wall/zhengzhou.jpg|瀚海北金|",   // 郑州
+  "wall/nanjing.jpg|ist艾尚天地|",   // 南京
+  "wall/nantong.jpg|如东喜润城|",   // 南通
+  "wall/taizhou.jpg|泰兴凤凰广场|",   // 泰州
+  "wall/beijing.jpg|槐房万达广场|",   // 北京
+  "wall/neimenggu.jpg|茂业摩尔城|",   // 内蒙古
+  "wall/fuyang.jpg|方圆荟·百太星马国际购物中心|",   // 阜阳
+  "wall/guangzhou.jpg|中华美食城|",   // 广州
+  "wall/tianjin.jpg|天津生态城未来广场|",   // 天津
+  "wall/shangrao.jpg|时光PARK文化情境商业公园|",   // 上饶
+  "wall/zigong.jpg|自贡万达广场|",   // 自贡
+  "wall/shanghai.jpg|上海浦东禹悦汇|",   // 上海
+  "wall/qingdao.jpg|青岛CBD万达广场|",   // 青岛
+  "wall/xiangyang.jpg|襄阳天元CityPark|",   // 襄阳
+  "wall/wuhan.jpg|江汉路Happy站台及新佳丽时尚广场|",   // 武汉
+  "wall/taiyuan.jpg|双塔汇商业广场|",   // 太原
+  "wall/chongqing.jpg|重庆江津万达广场|",   // 重庆
+  "wall/zhaotong.jpg|昭通合景海悦广场|",   // 昭通
+  "wall/quanzhou.jpg|泉州德化万达广场|",   // 泉州
 ];
 // ============================================================
 

@@ -285,6 +285,8 @@ window.WALL = (window.WALL || []).map(function (w) {
   var p = w.split("|").map(function (x) { return x.trim(); });
   return { file: p[0], screen: p[1] || "", nickname: p[2] || "", caption: p[3] || "", cover: p[4] === "封面" };
 }).filter(function (x) { return x && x.file; });
+// 同一个照片路径写了多行时，只保留最上面那一行（所以新写的行放最上面会优先）
+(function () { var seen = {}; window.WALL = window.WALL.filter(function (x) { if (seen[x.file]) return false; seen[x.file] = 1; return true; }); })();
 </script>
 <script>
 
@@ -472,9 +474,20 @@ window.addEventListener("hashchange", function () { show(fromHash(), false); });
 var covers = {};
 function photoOf(s) { return s.photo || covers[s.mall] || ""; }
 function setHTML(id, h) { document.getElementById(id).innerHTML = h; }
+// 只显示「文件真的已经上传」的返图：预设好的位置没有照片时自动隐藏
+var WALL_OK = null, WALLSHOW = [];
+function wallReady() {
+  if (!WALL_OK) WALL_OK = Promise.all(WALL.map(function (it) {
+    return new Promise(function (res) { var im = new Image(); im.onload = function () { res(it); }; im.onerror = function () { res(null); }; im.src = it.file; });
+  })).then(function (a) { return a.filter(Boolean); });
+  return WALL_OK;
+}
 function loadCovers() {
-  covers = {};
-  WALL.forEach(function (it) { if (it.cover && it.screen && it.file) covers[it.screen] = it.file; });
+  wallReady().then(function (list) {
+    covers = {};
+    list.forEach(function (it) { if (it.cover && it.screen && it.file) covers[it.screen] = it.file; });
+    if (state.tab === "summary") selectScreen(state.sel);
+  });
 }
 function safeLink(text) {
   return esc(text).replace(/(https?:\/\/[^\s<]+)/g, function (u) { return '<a href="' + u + '" target="_blank" rel="noopener">' + u + "</a>"; });
@@ -490,7 +503,8 @@ function renderCollect() {
   setHTML("view-collect",
     '<a class="go" id="go" href="' + (FORM_URL ? esc(FORM_URL) : "#") + '" target="_blank" rel="noopener"' + (FORM_URL ? "" : ' aria-disabled="true"') + ">📷 " + (FORM_URL ? "前往提交返图" : "返图通道尚未开放") + "</a>" +
     '<section class="guide"><h2>返图说明</h2><p>' + esc(COLLECT_INTRO) + "</p><h3>上传须知</h3><ul>" + COLLECT_RULES.map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + "</ul>" +
-    '<p class="stat" style="margin-top:12px">📊 目前返图墙已有 <b>' + WALL.length + "</b> 张返图</p></section>");
+    '<p class="stat" style="margin-top:12px">📊 目前返图墙已有 <b id="wall-n">…</b> 张返图</p></section>');
+  wallReady().then(function (l) { var n = document.getElementById("wall-n"); if (n) n.textContent = l.length; });
 }
 var wallOff = 0, WALL_PAGE = 30;
 function figure(it) {
@@ -498,14 +512,18 @@ function figure(it) {
   return '<figure data-src="' + esc(it.file) + '" data-cap="' + esc(cap) + '" tabindex="0" role="button"><img src="' + esc(it.file) + '" alt="返图" loading="lazy"><figcaption><b>' + esc(it.screen || "未标注商场") + '</b></figcaption></figure>';
 }
 function showMore() {
-  var part = WALL.slice(wallOff, wallOff + WALL_PAGE);
+  var part = WALLSHOW.slice(wallOff, wallOff + WALL_PAGE);
   document.getElementById("wall-grid").insertAdjacentHTML("beforeend", part.map(figure).join(""));
   wallOff += part.length;
-  document.getElementById("wall-more").innerHTML = wallOff < WALL.length ? '<button class="more" type="button" id="more-btn">加载更多</button>' : "";
+  document.getElementById("wall-more").innerHTML = wallOff < WALLSHOW.length ? '<button class="more" type="button" id="more-btn">加载更多</button>' : "";
 }
 function loadWall() {
-  if (!WALL.length) { setHTML("view-wall", '<div class="empty"><strong>返图墙还没有照片</strong><br>审核通过的返图会展示在这里。</div>'); return; }
-  wallOff = 0; setHTML("view-wall", '<div class="wall" id="wall-grid"></div><div id="wall-more"></div>'); showMore();
+  setHTML("view-wall", '<p class="count">载入中…</p>');
+  wallReady().then(function (list) {
+    WALLSHOW = list;
+    if (!list.length) { setHTML("view-wall", '<div class="empty"><strong>返图墙还没有照片</strong><br>审核通过的返图会展示在这里。</div>'); return; }
+    wallOff = 0; setHTML("view-wall", '<div class="wall" id="wall-grid"></div><div id="wall-more"></div>'); showMore();
+  });
 }
 function openBox(fig) {
   var b = document.createElement("div"); b.className = "lightbox"; b.setAttribute("role", "dialog"); b.setAttribute("aria-label", "放大查看");
