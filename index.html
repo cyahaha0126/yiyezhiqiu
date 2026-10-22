@@ -181,6 +181,7 @@ img{max-width:100%}
 .stat b{font-family:var(--font-display);font-size:1.15rem;color:var(--accent-text);margin:0 3px}
 .wall{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .wall figure{margin:0;display:flex;flex-direction:column;background:#fff;border:3px solid var(--yolk);border-radius:20px;overflow:hidden;cursor:pointer;min-width:0}
+.wall figure.todo{cursor:default;border-style:dashed}.wall .ph{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1/1;background:var(--bg);color:#a89a5a;font-weight:700;font-size:15px;letter-spacing:2px}
 .wall img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:var(--bg)}
 .wall figcaption{padding:8px 10px 10px;font-size:.85rem;line-height:1.4;color:var(--ink);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(2 * 1.4em + 18px)}
 .wall figcaption b{font-weight:500;display:inline}
@@ -474,18 +475,18 @@ window.addEventListener("hashchange", function () { show(fromHash(), false); });
 var covers = {};
 function photoOf(s) { return s.photo || covers[s.mall] || ""; }
 function setHTML(id, h) { document.getElementById(id).innerHTML = h; }
-// 只显示「文件真的已经上传」的返图：预设好的位置没有照片时自动隐藏
+// 预设位置全部显示；文件还没上传的格子显示「待上传」
 var WALL_OK = null, WALLSHOW = [];
 function wallReady() {
   if (!WALL_OK) WALL_OK = Promise.all(WALL.map(function (it) {
-    return new Promise(function (res) { var im = new Image(); im.onload = function () { res(it); }; im.onerror = function () { res(null); }; im.src = it.file; });
-  })).then(function (a) { return a.filter(Boolean); });
+    return new Promise(function (res) { var im = new Image(); im.onload = function () { it.ok = true; res(it); }; im.onerror = function () { it.ok = false; res(it); }; im.src = it.file; });
+  }));
   return WALL_OK;
 }
 function loadCovers() {
   wallReady().then(function (list) {
     covers = {};
-    list.forEach(function (it) { if (it.cover && it.screen && it.file) covers[it.screen] = it.file; });
+    list.forEach(function (it) { if (it.ok && it.cover && it.screen && it.file) covers[it.screen] = it.file; });
     if (state.tab === "summary") selectScreen(state.sel);
   });
 }
@@ -504,11 +505,12 @@ function renderCollect() {
     '<a class="go" id="go" href="' + (FORM_URL ? esc(FORM_URL) : "#") + '" target="_blank" rel="noopener"' + (FORM_URL ? "" : ' aria-disabled="true"') + ">📷 " + (FORM_URL ? "前往提交返图" : "返图通道尚未开放") + "</a>" +
     '<section class="guide"><h2>返图说明</h2><p>' + esc(COLLECT_INTRO) + "</p><h3>上传须知</h3><ul>" + COLLECT_RULES.map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + "</ul>" +
     '<p class="stat" style="margin-top:12px">📊 目前返图墙已有 <b id="wall-n">…</b> 张返图</p></section>');
-  wallReady().then(function (l) { var n = document.getElementById("wall-n"); if (n) n.textContent = l.length; });
+  wallReady().then(function (l) { var n = document.getElementById("wall-n"); if (n) n.textContent = l.filter(function (x) { return x.ok; }).length; });
 }
 var wallOff = 0, WALL_PAGE = 30;
 function figure(it) {
   var cap = (it.nickname || "匿名") + (it.screen ? "｜" + it.screen : "") + (it.caption ? "｜" + it.caption : "");
+  if (!it.ok) return '<figure class="todo" aria-label="待上传"><div class="ph">待上传</div><figcaption><b>' + esc(it.screen || "未标注商场") + '</b></figcaption></figure>';
   return '<figure data-src="' + esc(it.file) + '" data-cap="' + esc(cap) + '" tabindex="0" role="button"><img src="' + esc(it.file) + '" alt="返图" loading="lazy"><figcaption><b>' + esc(it.screen || "未标注商场") + '</b></figcaption></figure>';
 }
 function showMore() {
@@ -521,7 +523,7 @@ function loadWall() {
   setHTML("view-wall", '<p class="count">载入中…</p>');
   wallReady().then(function (list) {
     WALLSHOW = list;
-    if (!list.length) { setHTML("view-wall", '<div class="empty"><strong>返图墙还没有照片</strong><br>审核通过的返图会展示在这里。</div>'); return; }
+    if (!list.length) { setHTML("view-wall", '<div class="empty"><strong>返图墙还没有位置</strong></div>'); return; }
     wallOff = 0; setHTML("view-wall", '<div class="wall" id="wall-grid"></div><div id="wall-more"></div>'); showMore();
   });
 }
@@ -536,10 +538,10 @@ function openBox(fig) {
 }
 document.getElementById("view-wall").addEventListener("click", function (e) {
   if (e.target.id === "more-btn") { showMore(); return; }
-  var f = e.target.closest("figure"); if (f) openBox(f);
+  var f = e.target.closest("figure"); if (f && !f.classList.contains("todo")) openBox(f);
 });
 document.getElementById("view-wall").addEventListener("keydown", function (e) {
-  if (e.key !== "Enter" && e.key !== " ") return; var f = e.target.closest("figure"); if (f) { e.preventDefault(); openBox(f); }
+  if (e.key !== "Enter" && e.key !== " ") return; var f = e.target.closest("figure"); if (f && !f.classList.contains("todo")) { e.preventDefault(); openBox(f); }
 });
 
 show(fromHash(), false);
