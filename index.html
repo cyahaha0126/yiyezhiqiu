@@ -485,7 +485,12 @@ function setHTML(id, h) { document.getElementById(id).innerHTML = h; }
 var WALL_OK = null, WALLSHOW = [];
 function wallReady() {
   if (!WALL_OK) WALL_OK = Promise.all(WALL.map(function (it) {
-    return new Promise(function (res) { var im = new Image(); im.onload = function () { it.ok = true; res(it); }; im.onerror = function () { it.ok = false; res(it); }; im.src = it.file; });
+    // 只问「这个文件在不在」（HEAD 请求，不下载图片本体），避免一开页就把所有返图完整下载一遍
+    function viaImage(res) { var im = new Image(); im.onload = function () { it.ok = true; res(it); }; im.onerror = function () { it.ok = false; res(it); }; im.src = it.file; }
+    return new Promise(function (res) {
+      if (!window.fetch) { viaImage(res); return; }
+      fetch(it.file, { method: "HEAD" }).then(function (r) { it.ok = r.ok; res(it); }, function () { viaImage(res); });
+    });
   }));
   return WALL_OK;
 }
@@ -517,7 +522,7 @@ var wallOff = 0, WALL_PAGE = 30;
 function figure(g) {
   var name = esc(g.screen || "未标注商场");
   if (!g.items.length) return '<figure class="todo" aria-label="待上传"><div class="ph">待上传</div><figcaption><b>' + name + '</b></figcaption></figure>';
-  var imgs = g.items.map(function (it) { return '<img src="' + esc(it.file) + '" alt="返图" loading="lazy">'; }).join("");
+  var imgs = g.items.map(function (it) { return '<img src="' + esc(it.file) + '" alt="返图" loading="lazy" decoding="async">'; }).join("");
   var multi = g.items.length > 1;
   var dots = multi ? '<div class="dots">' + g.items.map(function (_, k) { return "<i" + (k ? "" : ' class="on"') + "></i>"; }).join("") + "</div>" : "";
   return '<figure class="grp" data-k="' + g.k + '" tabindex="0" role="button"><div class="box"><div class="car">' + imgs + "</div>" + dots + (multi ? '<span class="cnt">' + g.items.length + " 张</span>" : "") + "</div><figcaption><b>" + name + '</b><span class="nk">' + esc(g.items[0].nickname || "匿名") + '</span><span class="sy">' + esc(g.items[0].caption || "") + "</span></figcaption></figure>";
@@ -570,18 +575,26 @@ function openGroup(fig) {
   openBox(null, g.items.map(function (it) { return { src: it.file, cap: capOf(it) }; }), idx);
 }
 // 轮播：每 4 秒自动翻页，手指也可左右滑动
-var AUTO = null;
+var AUTO = null, VIS = null, TICK = 0;
 function startAuto() {
   if (AUTO) clearInterval(AUTO);
+  if (VIS) VIS.disconnect();
   if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var cars = [].slice.call(document.querySelectorAll("#wall-grid .car")).filter(function (c) { return c.children.length > 1; });
+  if (!cars.length) return;
+  if (window.IntersectionObserver) {
+    VIS = new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.setAttribute("data-vis", e.isIntersecting ? "1" : ""); }); }, { threshold: 0.4 });
+    cars.forEach(function (c) { VIS.observe(c); });
+  } else cars.forEach(function (c) { c.setAttribute("data-vis", "1"); });
+  // 每秒只翻一个可见的轮播，错开动画，减轻手机负担；每个轮播约 4~5 秒翻一次
   AUTO = setInterval(function () {
     if (!document.getElementById("wall-grid") || document.querySelector(".lightbox") || document.hidden) return;
-    document.querySelectorAll("#wall-grid .car").forEach(function (c) {
-      var n = c.children.length; if (n < 2 || !c.clientWidth) return;
-      var i = (Math.round(c.scrollLeft / c.clientWidth) + 1) % n;
-      c.scrollTo({ left: i * c.clientWidth, behavior: "smooth" });
-    });
-  }, 4000);
+    var vis = cars.filter(function (c) { return c.getAttribute("data-vis") === "1" && c.clientWidth; });
+    if (!vis.length) return;
+    var c = vis[TICK++ % vis.length], n = c.children.length;
+    var i = (Math.round(c.scrollLeft / c.clientWidth) + 1) % n;
+    c.scrollTo({ left: i * c.clientWidth, behavior: "smooth" });
+  }, 1200);
 }
 document.getElementById("view-wall").addEventListener("scroll", function (e) {
   var c = e.target; if (!c.classList || !c.classList.contains("car") || !c.clientWidth) return;
