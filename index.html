@@ -279,6 +279,12 @@ if (typeof SCREENS === "undefined") {
     document.body.appendChild(d);
   });
 }
+// 返图墙支持一行一张的简写："照片路径|商场|昵称|说明|封面"
+window.WALL = (window.WALL || []).map(function (w) {
+  if (typeof w !== "string") return w;
+  var p = w.split("|").map(function (x) { return x.trim(); });
+  return { file: p[0], screen: p[1] || "", nickname: p[2] || "", caption: p[3] || "", cover: p[4] === "封面" };
+}).filter(function (x) { return x && x.file; });
 </script>
 <script>
 
