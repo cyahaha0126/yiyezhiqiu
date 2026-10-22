@@ -182,6 +182,11 @@ img{max-width:100%}
 .wall{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .wall figure{margin:0;display:flex;flex-direction:column;background:#fff;border:3px solid var(--yolk);border-radius:20px;overflow:hidden;cursor:pointer;min-width:0}
 .wall figure.todo{cursor:default;border-style:dashed}.wall .ph{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1/1;background:var(--bg);color:#a89a5a;font-weight:700;font-size:15px;letter-spacing:2px}
+.wall .box{position:relative}.wall .car{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;aspect-ratio:1/1;background:var(--bg)}.wall .car::-webkit-scrollbar{display:none}
+.wall .car img{flex:0 0 100%;scroll-snap-align:center;height:100%}
+.wall .dots{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:5px;pointer-events:none}.wall .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.7);box-shadow:0 0 2px rgba(0,0,0,.4)}.wall .dots i.on{background:var(--yolk);width:14px;border-radius:3px}
+.wall .cnt{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;padding:2px 7px;border-radius:10px;pointer-events:none}
+.lightbox .nav{position:fixed;top:50%;transform:translateY(-50%);width:44px;height:64px;border:0;background:rgba(255,255,255,.25);color:#fff;font-size:34px;border-radius:12px;padding:0}.lightbox .prev{left:8px;right:auto}.lightbox .next{right:8px;left:auto}
 .wall img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:var(--bg)}
 .wall figcaption{padding:8px 10px 10px;font-size:.85rem;line-height:1.4;color:var(--ink);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(2 * 1.4em + 18px)}
 .wall figcaption b{font-weight:500;display:inline}
@@ -508,10 +513,23 @@ function renderCollect() {
   wallReady().then(function (l) { var n = document.getElementById("wall-n"); if (n) n.textContent = l.filter(function (x) { return x.ok; }).length; });
 }
 var wallOff = 0, WALL_PAGE = 30;
-function figure(it) {
-  var cap = (it.nickname || "匿名") + (it.screen ? "｜" + it.screen : "") + (it.caption ? "｜" + it.caption : "");
-  if (!it.ok) return '<figure class="todo" aria-label="待上传"><div class="ph">待上传</div><figcaption><b>' + esc(it.screen || "未标注商场") + '</b></figcaption></figure>';
-  return '<figure data-src="' + esc(it.file) + '" data-cap="' + esc(cap) + '" tabindex="0" role="button"><img src="' + esc(it.file) + '" alt="返图" loading="lazy"><figcaption><b>' + esc(it.screen || "未标注商场") + '</b></figcaption></figure>';
+function figure(g) {
+  var name = esc(g.screen || "未标注商场");
+  if (!g.items.length) return '<figure class="todo" aria-label="待上传"><div class="ph">待上传</div><figcaption><b>' + name + '</b></figcaption></figure>';
+  var imgs = g.items.map(function (it) { return '<img src="' + esc(it.file) + '" alt="返图" loading="lazy">'; }).join("");
+  var multi = g.items.length > 1;
+  var dots = multi ? '<div class="dots">' + g.items.map(function (_, k) { return "<i" + (k ? "" : ' class="on"') + "></i>"; }).join("") + "</div>" : "";
+  return '<figure class="grp" data-k="' + g.k + '" tabindex="0" role="button"><div class="box"><div class="car">' + imgs + "</div>" + dots + (multi ? '<span class="cnt">' + g.items.length + " 张</span>" : "") + "</div><figcaption><b>" + name + "</b></figcaption></figure>";
+}
+var WALLGROUPS = [];
+function groupWall(list) {
+  var map = {}, out = [];
+  list.forEach(function (it) {
+    var key = it.screen || "";
+    var g = map[key]; if (!g) { g = map[key] = { screen: key, items: [], k: out.length }; out.push(g); }
+    if (it.ok) g.items.push(it);
+  });
+  return out;
 }
 function showMore() {
   var part = WALLSHOW.slice(wallOff, wallOff + WALL_PAGE);
@@ -522,26 +540,59 @@ function showMore() {
 function loadWall() {
   setHTML("view-wall", '<p class="count">载入中…</p>');
   wallReady().then(function (list) {
-    WALLSHOW = list;
-    if (!list.length) { setHTML("view-wall", '<div class="empty"><strong>返图墙还没有位置</strong></div>'); return; }
-    wallOff = 0; setHTML("view-wall", '<div class="wall" id="wall-grid"></div><div id="wall-more"></div>'); showMore();
+    WALLGROUPS = groupWall(list); WALLSHOW = WALLGROUPS;
+    if (!WALLGROUPS.length) { setHTML("view-wall", '<div class="empty"><strong>返图墙还没有位置</strong></div>'); return; }
+    wallOff = 0; setHTML("view-wall", '<div class="wall" id="wall-grid"></div><div id="wall-more"></div>'); showMore(); startAuto();
   });
 }
-function openBox(fig) {
+function openBox(fig, list, idx) {
+  var items = list || [{ src: fig.getAttribute("data-src"), cap: fig.getAttribute("data-cap") }], cur = idx || 0;
   var b = document.createElement("div"); b.className = "lightbox"; b.setAttribute("role", "dialog"); b.setAttribute("aria-label", "放大查看");
-  b.innerHTML = '<button type="button">关闭</button><img alt="返图大图"><p></p>';
-  b.querySelector("img").src = fig.getAttribute("data-src"); b.querySelector("p").textContent = fig.getAttribute("data-cap");
+  var multi = items.length > 1;
+  b.innerHTML = '<button type="button" class="x">关闭</button>' + (multi ? '<button type="button" class="nav prev" aria-label="上一张">‹</button><button type="button" class="nav next" aria-label="下一张">›</button>' : "") + '<img alt="返图大图"><p></p>';
+  function draw() { b.querySelector("img").src = items[cur].src; b.querySelector("p").textContent = items[cur].cap + (multi ? "（" + (cur + 1) + "/" + items.length + "）" : ""); }
+  function go(d) { cur = (cur + d + items.length) % items.length; draw(); }
   function close() { b.remove(); document.removeEventListener("keydown", key); }
-  function key(ev) { if (ev.key === "Escape") close(); }
-  b.addEventListener("click", close); document.addEventListener("keydown", key);
-  document.body.appendChild(b); b.querySelector("button").focus();
+  function key(ev) { if (ev.key === "Escape") close(); else if (multi && ev.key === "ArrowLeft") go(-1); else if (multi && ev.key === "ArrowRight") go(1); }
+  b.addEventListener("click", function (ev) {
+    if (ev.target.classList.contains("prev")) { go(-1); return; }
+    if (ev.target.classList.contains("next")) { go(1); return; }
+    close();
+  });
+  document.addEventListener("keydown", key); draw();
+  document.body.appendChild(b); b.querySelector(".x").focus();
 }
+function capOf(it) { return (it.screen || "未标注商场") + (it.nickname ? "｜" + it.nickname : "") + (it.caption ? "｜" + it.caption : ""); }
+function openGroup(fig) {
+  var g = WALLGROUPS[+fig.getAttribute("data-k")]; if (!g || !g.items.length) return;
+  var car = fig.querySelector(".car"), idx = car && car.clientWidth ? Math.round(car.scrollLeft / car.clientWidth) : 0;
+  openBox(null, g.items.map(function (it) { return { src: it.file, cap: capOf(it) }; }), idx);
+}
+// 轮播：每 4 秒自动翻页，手指也可左右滑动
+var AUTO = null;
+function startAuto() {
+  if (AUTO) clearInterval(AUTO);
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  AUTO = setInterval(function () {
+    if (!document.getElementById("wall-grid") || document.querySelector(".lightbox") || document.hidden) return;
+    document.querySelectorAll("#wall-grid .car").forEach(function (c) {
+      var n = c.children.length; if (n < 2 || !c.clientWidth) return;
+      var i = (Math.round(c.scrollLeft / c.clientWidth) + 1) % n;
+      c.scrollTo({ left: i * c.clientWidth, behavior: "smooth" });
+    });
+  }, 4000);
+}
+document.getElementById("view-wall").addEventListener("scroll", function (e) {
+  var c = e.target; if (!c.classList || !c.classList.contains("car") || !c.clientWidth) return;
+  var i = Math.round(c.scrollLeft / c.clientWidth), d = c.parentNode.querySelectorAll(".dots i");
+  for (var k = 0; k < d.length; k++) d[k].className = k === i ? "on" : "";
+}, true);
 document.getElementById("view-wall").addEventListener("click", function (e) {
   if (e.target.id === "more-btn") { showMore(); return; }
-  var f = e.target.closest("figure"); if (f && !f.classList.contains("todo")) openBox(f);
+  var f = e.target.closest("figure"); if (f && !f.classList.contains("todo")) openGroup(f);
 });
 document.getElementById("view-wall").addEventListener("keydown", function (e) {
-  if (e.key !== "Enter" && e.key !== " ") return; var f = e.target.closest("figure"); if (f && !f.classList.contains("todo")) { e.preventDefault(); openBox(f); }
+  if (e.key !== "Enter" && e.key !== " ") return; var f = e.target.closest("figure"); if (f && !f.classList.contains("todo")) { e.preventDefault(); openGroup(f); }
 });
 
 show(fromHash(), false);
