@@ -187,9 +187,10 @@ img{max-width:100%}
 .wall .dots{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:5px;pointer-events:none}.wall .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.7);box-shadow:0 0 2px rgba(0,0,0,.4)}.wall .dots i.on{background:var(--yolk);width:14px;border-radius:3px}
 .wall .cnt{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;padding:2px 7px;border-radius:10px;pointer-events:none}
 .lightbox .nav{position:fixed;top:50%;transform:translateY(-50%);width:44px;height:64px;border:0;background:rgba(255,255,255,.25);color:#fff;font-size:34px;border-radius:12px;padding:0}.lightbox .prev{left:8px;right:auto}.lightbox .next{right:8px;left:auto}
+.wall figcaption .nk,.wall figcaption .sy{display:block;font-size:12px;line-height:1.4;color:#8a7d3c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wall figcaption .sy{min-height:1.4em;color:#6b6330}
 .wall img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:var(--bg)}
-.wall figcaption{padding:8px 10px 10px;font-size:.85rem;line-height:1.4;color:var(--ink);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(2 * 1.4em + 18px)}
-.wall figcaption b{font-weight:500;display:inline}
+.wall figcaption{padding:8px 10px 10px;font-size:.85rem;line-height:1.4;color:var(--ink);overflow-wrap:anywhere;min-height:calc(1.4em + 2 * 12px * 1.4 + 18px)}
+.wall figcaption b{font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .more{display:block;margin:12px auto 0;font:inherit;background:#fff;border:2px solid var(--yolk);border-radius:999px;padding:6px 22px;cursor:pointer;color:var(--ink)}
 .lightbox{position:fixed;inset:0;z-index:50;background:rgba(30,25,10,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:10px}
 .lightbox img{max-width:100%;max-height:78vh;border-radius:12px;object-fit:contain}
@@ -519,7 +520,7 @@ function figure(g) {
   var imgs = g.items.map(function (it) { return '<img src="' + esc(it.file) + '" alt="返图" loading="lazy">'; }).join("");
   var multi = g.items.length > 1;
   var dots = multi ? '<div class="dots">' + g.items.map(function (_, k) { return "<i" + (k ? "" : ' class="on"') + "></i>"; }).join("") + "</div>" : "";
-  return '<figure class="grp" data-k="' + g.k + '" tabindex="0" role="button"><div class="box"><div class="car">' + imgs + "</div>" + dots + (multi ? '<span class="cnt">' + g.items.length + " 张</span>" : "") + "</div><figcaption><b>" + name + "</b></figcaption></figure>";
+  return '<figure class="grp" data-k="' + g.k + '" tabindex="0" role="button"><div class="box"><div class="car">' + imgs + "</div>" + dots + (multi ? '<span class="cnt">' + g.items.length + " 张</span>" : "") + "</div><figcaption><b>" + name + '</b><span class="nk">' + esc(g.items[0].nickname || "匿名") + '</span><span class="sy">' + esc(g.items[0].caption || "") + "</span></figcaption></figure>";
 }
 var WALLGROUPS = [];
 function groupWall(list) {
@@ -586,6 +587,8 @@ document.getElementById("view-wall").addEventListener("scroll", function (e) {
   var c = e.target; if (!c.classList || !c.classList.contains("car") || !c.clientWidth) return;
   var i = Math.round(c.scrollLeft / c.clientWidth), d = c.parentNode.querySelectorAll(".dots i");
   for (var k = 0; k < d.length; k++) d[k].className = k === i ? "on" : "";
+  var fig = c.closest("figure"), g = WALLGROUPS[+fig.getAttribute("data-k")], it = g && g.items[i];
+  if (it) { fig.querySelector(".nk").textContent = it.nickname || "匿名"; fig.querySelector(".sy").textContent = it.caption || ""; }
 }, true);
 document.getElementById("view-wall").addEventListener("click", function (e) {
   if (e.target.id === "more-btn") { showMore(); return; }
