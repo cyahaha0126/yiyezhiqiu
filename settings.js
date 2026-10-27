@@ -55,6 +55,10 @@ var COLLECT_RULES = [
 //      同一个商场想放第 2 张：复制该行，把文件名改成 wall/hangzhou-2.jpg 即可。
 //      想加昵称：在最后一个竖线后面写，例如 "wall/hangzhou.jpg|未来科技城万达广场|小月牙|",
 var WALL = [
+  "wall/1027-01.jpg|襄阳天元CityPark|商场返图",
+  "wall/1027-02.jpg|未来科技城万达广场|商场返图",
+  "wall/1027-03.jpg|泰兴凤凰广场|商场返图",
+  
   "wall/0000.jpg|未来科技城万达广场|",   // 杭州
   "wall/shaoxing.jpg|诸暨万达广场|",   // 绍兴
   "wall/shenyang.jpg|龙之梦生活奥莱|",   // 沈阳
