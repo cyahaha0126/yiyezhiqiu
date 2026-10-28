@@ -58,6 +58,7 @@ var WALL = [
   "wall/1027-01.jpg|襄阳天元CityPark|商场返图",
   "wall/1027-02.jpg|未来科技城万达广场|商场返图",
   "wall/1027-03.jpg|泰兴凤凰广场|商场返图",
+  "wall/1028-01.jpg|奥电未来城|商场返图",
   
   "wall/0000.jpg|未来科技城万达广场|",   // 杭州
   "wall/shaoxing.jpg|诸暨万达广场|",   // 绍兴
@@ -97,7 +98,7 @@ var SCREENS = [
   { city: "南京", prov: "32", mall: "ist艾尚天地", pos: "入口/商场内部/户外", dates: ["10-29"], dateText: "10月29日", hours: "10:00-22:00", addr: "江苏省南京市中山路100号ist艾尚天地", photo: "" },
   { city: "南通", prov: "32", mall: "如东喜润城", pos: "外广场/商场内部", dates: ["10-29", "10-30", "10-31"], dateText: "10月29-31日", hours: "12:00-21:30/10:00-21:30", addr: "江苏省南通市如东县城中街道珠江路7号", photo: PHOTOS.nantong },
   { city: "泰州", prov: "32", mall: "泰兴凤凰广场", pos: "1号门/2号门", dates: ["10-29", "10-30", "10-31"], dateText: "10月29-31日", hours: "19:00-21:30", addr: "江苏省泰兴市大庆中路32号", photo: PHOTOS.taizhou },
-  { city: "北京", prov: "11", mall: "槐房万达广场", pos: "1号门外", dates: ["10-29", "10-30", "10-31"], dateText: "10月29-31日", hours: "13:30-22:00", addr: "丰台区南苑西路39号", photo: "" },
+  { city: "北京", prov: "11", mall: "槐房万达广场", pos: "1号门外", dates: ["10-29", "10-30", "10-31"], dateText: "延期，具体时间待定", hours: "13:30-22:00", addr: "丰台区南苑西路39号", photo: "" },
   { city: "内蒙古", prov: "15", mall: "茂业摩尔城", pos: "A座中厅", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "10:00-21:00", addr: "内蒙古呼和浩特市新城区新华东街82号", photo: "" },
   { city: "阜阳", prov: "34", mall: "方圆荟·百太星马国际购物中心", pos: "1号门中庭", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "9:30-21:00", addr: "太和县民安大道与建设西路交汇东北角", photo: "" },
   { city: "广州", prov: "44", mall: "中华美食城", pos: "内外广场舞台", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "16:00-19:00", addr: "广州市番禺区登云大路2号", photo: "" },
