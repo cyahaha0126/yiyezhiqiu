@@ -2,7 +2,7 @@
 // 一烨知秋周年大屏 · 设置文件（settings.js）
 // 公告、返图须知、表单网址、大屏资料都在这里改，改完存档即可。
 // 规则：只改引号 "" 里面的文字；逗号、引号、大括号、中括号不要删掉。
-// 照片已放在 index.html 里，点位的 photo 写成 PHOTOS.名字 就会显示对应照片，不用动。
+// 大屏照片：上传到 screens 文件夹，在下面「5) SHOTS」里按格式写一行即可；返图墙照片在 wall 文件夹。
 // ============================================================
 
 // ============================================================
@@ -94,33 +94,67 @@ var WALL = [
   "wall/zhaotong.jpg|昭通合景海悦广场|",   // 昭通
   "wall/quanzhou.jpg|泉州德化万达广场|",   // 泉州
 ];
+// 5) 大屏汇总页的「大屏照片」（点开某个点位时显示的那张）
+//    加照片的方式和返图墙一样：
+//      ① 把照片上传到仓库的 screens 文件夹（和 wall 文件夹一样新建/上传即可）
+//      ② 文件名用下面预设的名字（如 screens/hangzhou.jpg），传好就会自动显示，不用改代码
+//    格式：  "照片路径|商场名称"   （商场名称要和下面 SCREENS 里的 mall 一字不差）
+//    想换照片：直接上传同名新照片覆盖；想用别的文件名：把这里的路径改成新文件名。
+//    汇总页显示哪张：返图墙里那一行写了「|封面」的返图 > 这里的 screens 照片（原本的商场图片）。
+//    没有加「|封面」的返图不会出现在汇总页；还没有封面的点位就一直用这里的照片。
+var SHOTS = [
+  "screens/hangzhou.jpg|未来科技城万达广场",   // 杭州
+  "screens/shaoxing.jpg|诸暨万达广场",   // 绍兴
+  "screens/shenyang.jpg|龙之梦生活奥莱",   // 沈阳
+  "screens/dalian.jpg|奥电未来城",   // 大连
+  "screens/zhengzhou.jpg|瀚海北金",   // 郑州
+  "screens/nanjing.jpg|ist艾尚天地",   // 南京
+  "screens/nantong.jpg|如东喜润城",   // 南通
+  "screens/taizhou.jpg|泰兴凤凰广场",   // 泰州
+  "screens/beijing.jpg|槐房万达广场",   // 北京
+  "screens/neimenggu.jpg|茂业摩尔城",   // 内蒙古
+  "screens/fuyang.jpg|方圆荟·百太星马国际购物中心",   // 阜阳
+  "screens/guangzhou.jpg|中华美食城",   // 广州
+  "screens/tianjin.jpg|天津生态城未来广场",   // 天津
+  "screens/shangrao.jpg|时光PARK文化情境商业公园",   // 上饶
+  "screens/zigong.jpg|自贡万达广场",   // 自贡
+  "screens/shanghai.jpg|上海浦东禹悦汇",   // 上海
+  "screens/qingdao.jpg|青岛CBD万达广场",   // 青岛
+  "screens/xiangyang.jpg|襄阳天元CityPark",   // 襄阳
+  "screens/wuhan.jpg|江汉路Happy站台及新佳丽时尚广场",   // 武汉
+  "screens/taiyuan.jpg|双塔汇商业广场",   // 太原
+  "screens/chongqing.jpg|重庆江津万达广场",   // 重庆
+  "screens/zhaotong.jpg|昭通合景海悦广场",   // 昭通
+  "screens/quanzhou.jpg|泉州德化万达广场",   // 泉州
+];
+
 // ============================================================
 
 // ===== 资料：来自大屏统计表（把这里的 SCREENS 换成最新资料即可）=====
-// prov 为省份代码；dates 为投放日期（MM-DD，年份按 2026）；photo 可填大屏现场照片（图片网址或 data:）
+// prov 为省份代码；dates 为投放日期（MM-DD，年份按 2026）；photo 一般留空（照片在上面 SHOTS 里设置），也可直接写图片路径
 var PROV = {"65": "新疆维吾尔自治区", "54": "西藏自治区", "15": "内蒙古自治区", "63": "青海省", "51": "四川省", "23": "黑龙江省", "62": "甘肃省", "53": "云南省", "45": "广西壮族自治区", "43": "湖南省", "61": "陕西省", "44": "广东省", "22": "吉林省", "13": "河北省", "42": "湖北省", "52": "贵州省", "37": "山东省", "36": "江西省", "41": "河南省", "21": "辽宁省", "14": "山西省", "34": "安徽省", "35": "福建省", "33": "浙江省", "32": "江苏省", "50": "重庆市", "64": "宁夏回族自治区", "46": "海南省", "71": "台湾省", "11": "北京市", "12": "天津市", "31": "上海市", "81": "香港特别行政区", "82": "澳门特别行政区"};
 var SCREENS = [
-  { city: "杭州", prov: "33", mall: "未来科技城万达广场", pos: "一号门一楼中庭", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "10:00-22:00", addr: "余杭区仓前街道创景路与联创街交汇处(创景路地铁站 B3口直达)", photo: PHOTOS.hangzhou },
-  { city: "绍兴", prov: "33", mall: "诸暨万达广场", pos: "二号门外广场", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "10:00-22:00", addr: "浙江省诸暨市浣东街道高湖东路69号万达广场", photo: PHOTOS.shaoxing },
-  { city: "沈阳", prov: "21", mall: "龙之梦生活奥莱", pos: "商场南庭", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "9:30-21:00", addr: "沈阳市大东龙之梦SUPER时尚奥莱", photo: PHOTOS.shenyang },
-  { city: "大连", prov: "21", mall: "奥电未来城", pos: "B1中庭", dates: ["10-29"], dateText: "10月29日", hours: "10:00-21:00", addr: "辽宁省大连市西岗区中山路奥林匹克广场9号", photo: PHOTOS.dalian },
+  { city: "杭州", prov: "33", mall: "未来科技城万达广场", pos: "一号门一楼中庭", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "10:00-22:00", addr: "余杭区仓前街道创景路与联创街交汇处(创景路地铁站 B3口直达)", photo: "" },
+  { city: "绍兴", prov: "33", mall: "诸暨万达广场", pos: "二号门外广场", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "10:00-22:00", addr: "浙江省诸暨市浣东街道高湖东路69号万达广场", photo: "" },
+  { city: "沈阳", prov: "21", mall: "龙之梦生活奥莱", pos: "商场南庭", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "9:30-21:00", addr: "沈阳市大东龙之梦SUPER时尚奥莱", photo: "" },
+  { city: "大连", prov: "21", mall: "奥电未来城", pos: "B1中庭", dates: ["10-29"], dateText: "10月29日", hours: "10:00-21:00", addr: "辽宁省大连市西岗区中山路奥林匹克广场9号", photo: "" },
   { city: "郑州", prov: "41", mall: "瀚海北金", pos: "户外大屏 室内弧形屏", dates: ["10-29", "10-30", "10-31"], dateText: "10月29-31日", hours: "10:00-22:00", addr: "金水区文化路北三环交汇处东南角", photo: "" },
   { city: "南京", prov: "32", mall: "ist艾尚天地", pos: "入口/商场内部/户外", dates: ["10-29"], dateText: "10月29日", hours: "10:00-22:00", addr: "江苏省南京市中山路100号ist艾尚天地", photo: "" },
-  { city: "南通", prov: "32", mall: "如东喜润城", pos: "外广场/商场内部", dates: ["10-29", "10-30", "10-31"], dateText: "10月29-31日", hours: "12:00-21:30/10:00-21:30", addr: "江苏省南通市如东县城中街道珠江路7号", photo: PHOTOS.nantong },
-  { city: "泰州", prov: "32", mall: "泰兴凤凰广场", pos: "1号门/2号门", dates: ["10-29", "10-30", "10-31"], dateText: "10月29-31日", hours: "19:00-21:30", addr: "江苏省泰兴市大庆中路32号", photo: PHOTOS.taizhou },
+  { city: "南通", prov: "32", mall: "如东喜润城", pos: "外广场/商场内部", dates: ["10-29", "10-30", "10-31"], dateText: "10月29-31日", hours: "12:00-21:30/10:00-21:30", addr: "江苏省南通市如东县城中街道珠江路7号", photo: "" },
+  { city: "泰州", prov: "32", mall: "泰兴凤凰广场", pos: "1号门/2号门", dates: ["10-29", "10-30", "10-31"], dateText: "10月29-31日", hours: "19:00-21:30", addr: "江苏省泰兴市大庆中路32号", photo: "" },
   { city: "北京", prov: "11", mall: "槐房万达广场", pos: "1号门外", dates: ["10-29", "10-30", "10-31"], dateText: "延期，具体时间待定", hours: "13:30-22:00", addr: "丰台区南苑西路39号", photo: "" },
   { city: "内蒙古", prov: "15", mall: "茂业摩尔城", pos: "A座中厅", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "10:00-21:00", addr: "内蒙古呼和浩特市新城区新华东街82号", photo: "" },
   { city: "阜阳", prov: "34", mall: "方圆荟·百太星马国际购物中心", pos: "1号门中庭", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "9:30-21:00", addr: "太和县民安大道与建设西路交汇东北角", photo: "" },
   { city: "广州", prov: "44", mall: "中华美食城", pos: "内外广场舞台", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "16:00-19:00", addr: "广州市番禺区登云大路2号", photo: "" },
-  { city: "天津", prov: "12", mall: "天津生态城未来广场", pos: "1号门/2号门", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "11:00-13:00/17:00-21:30", addr: "天津市滨海新区中新生态城景盛路266号", photo: PHOTOS.tianjin },
-  { city: "上饶", prov: "36", mall: "时光PARK文化情境商业公园", pos: "水秀中心广场", dates: ["10-29", "10-30", "10-31", "11-01", "11-02"], dateText: "10月29日-11月2日", hours: "15:00-22:00", addr: "江西省上饶市广信区时光PARK", photo: PHOTOS.shangrao },
+  { city: "天津", prov: "12", mall: "天津生态城未来广场", pos: "1号门/2号门", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "11:00-13:00/17:00-21:30", addr: "天津市滨海新区中新生态城景盛路266号", photo: "" },
+  { city: "上饶", prov: "36", mall: "时光PARK文化情境商业公园", pos: "水秀中心广场", dates: ["10-29", "10-30", "10-31", "11-01", "11-02"], dateText: "10月29日-11月2日", hours: "15:00-22:00", addr: "江西省上饶市广信区时光PARK", photo: "" },
   { city: "自贡", prov: "51", mall: "自贡万达广场", pos: "1号门上方", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "10:00-21:00", addr: "四川省自贡市自流井区汇川路1699号自贡万达广场", photo: "" },
-  { city: "上海", prov: "31", mall: "上海浦东禹悦汇", pos: "1楼中庭舞台大屏", dates: ["10-29"], dateText: "10月29日", hours: "12:00-18:00", addr: "上海浦东新区惠南镇上海浦东禹悦汇", photo: PHOTOS.shanghai },
-  { city: "青岛", prov: "37", mall: "青岛CBD万达广场", pos: "一楼中庭", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "10:00-20:30", addr: "青岛市市北区延吉路青岛CBD万达广场", photo: PHOTOS.qingdao },
-  { city: "襄阳", prov: "42", mall: "襄阳天元CityPark", pos: "一楼一号中庭", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "10:00-22:00", addr: "天元Citypark襄阳市樊城区大庆西路与人民路交汇处西北角", photo: PHOTOS.xiangyang },
-  { city: "武汉", prov: "42", mall: "江汉路Happy站台及新佳丽时尚广场", pos: "入口/地铁站H出口附近", dates: ["10-29"], dateText: "10月29日", hours: "10:00-22:00", addr: "湖北省武汉市江汉区中山大道818号", photo: PHOTOS.wuhan },
-  { city: "太原", prov: "14", mall: "双塔汇商业广场", pos: "室内中庭负一层/南广场户外折叠大屏", dates: ["10-29"], dateText: "10月29日", hours: "10:00-22:00", addr: "山西省太原市迎泽区双塔汇商业广场", photo: PHOTOS.taiyuan },
-  { city: "重庆", prov: "50", mall: "重庆江津万达广场", pos: "3号门外", dates: ["10-29"], dateText: "10月29日", hours: "10:30-22:00", addr: "重庆市江津区圣泉街道江津万达广场", photo: PHOTOS.chongqing },
-  { city: "昭通", prov: "53", mall: "昭通合景海悦广场", pos: "2号门外", dates: ["10-29", "10-30", "10-31"], dateText: "10月29-31日", hours: "18:30-21:30", addr: "云南省昭通市昭阳区省耕塘片区昭通大道与国学路交汇处合景广场", photo: PHOTOS.zhaotong },
-  { city: "泉州", prov: "35", mall: "泉州德化万达广场", pos: "1号门外广场", dates: ["10-29"], dateText: "10月29日", hours: "17:00-22:00", addr: "福建省泉州市德化县龙浔镇瓷都大道398号", photo: PHOTOS.quanzhou }
+  { city: "上海", prov: "31", mall: "上海浦东禹悦汇", pos: "1楼中庭舞台大屏", dates: ["10-29"], dateText: "10月29日", hours: "12:00-18:00", addr: "上海浦东新区惠南镇上海浦东禹悦汇", photo: "" },
+  { city: "青岛", prov: "37", mall: "青岛CBD万达广场", pos: "一楼中庭", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "10:00-20:30", addr: "青岛市市北区延吉路青岛CBD万达广场", photo: "" },
+  { city: "襄阳", prov: "42", mall: "襄阳天元CityPark", pos: "一楼一号中庭", dates: ["10-29", "10-30"], dateText: "10月29-30日", hours: "10:00-22:00", addr: "天元Citypark襄阳市樊城区大庆西路与人民路交汇处西北角", photo: "" },
+  { city: "武汉", prov: "42", mall: "江汉路Happy站台及新佳丽时尚广场", pos: "入口/地铁站H出口附近", dates: ["10-29"], dateText: "10月29日", hours: "10:00-22:00", addr: "湖北省武汉市江汉区中山大道818号", photo: "" },
+  { city: "太原", prov: "14", mall: "双塔汇商业广场", pos: "室内中庭负一层/南广场户外折叠大屏", dates: ["10-29"], dateText: "10月29日", hours: "10:00-22:00", addr: "山西省太原市迎泽区双塔汇商业广场", photo: "" },
+  { city: "重庆", prov: "50", mall: "重庆江津万达广场", pos: "3号门外", dates: ["10-29"], dateText: "10月29日", hours: "10:30-22:00", addr: "重庆市江津区圣泉街道江津万达广场", photo: "" },
+  { city: "昭通", prov: "53", mall: "昭通合景海悦广场", pos: "2号门外", dates: ["10-29", "10-30", "10-31"], dateText: "10月29-31日", hours: "18:30-21:30", addr: "云南省昭通市昭阳区省耕塘片区昭通大道与国学路交汇处合景广场", photo: "" },
+  { city: "泉州", prov: "35", mall: "泉州德化万达广场", pos: "1号门外广场", dates: ["10-29"], dateText: "10月29日", hours: "17:00-22:00", addr: "福建省泉州市德化县龙浔镇瓷都大道398号", photo: "" }
 ];
